@@ -1,0 +1,28 @@
+
+#load libraries
+import pandas as pd
+from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
+sid = SentimentIntensityAnalyzer()
+
+#open excel file with processed verbatim
+data = pd.read_excel(r'C:\Users\UserName\MyFiles\Desktop\Projects\Vader\Vader_sample_1.xlsx').astype(str)
+
+data.drop_duplicates(subset ='Text ID', keep = 'first', inplace = True)
+data.sort_values(by=['Text Date'])
+data['text verba'] = data['text verba'].replace('nan','')
+
+data['Polarity'] = data['text verba'].apply(lambda verba: sid.polarity_scores(verba).get('compound') if verba!= '' else verba)
+
+def Senti(score):
+    if score>0.8:
+        return 'Positive'
+    elif score<-0.4:
+        return 'Negative'
+    else:
+        return 'Neutral'
+
+# run function on Sentiment polarity
+data['Sentiment'] = data['Polarity'].apply(lambda x: Senti(x) if x!='' else x)
+
+#save pd dataframe to excel
+data.to_excel(r'C:\Users\UserName\MyFiles\Desktop\Projects\Vader\Vader_done_1.xlsx', index=False)
